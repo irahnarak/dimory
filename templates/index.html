@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dimory</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --cream: #FFF8F0;
+            --warm-white: #FFFCF8;
+            --coral: #FF6B6B;
+            --coral-light: #FF8E8E;
+            --coral-dark: #E55555;
+            --teal: #4ECDC4;
+            --teal-dark: #3ABBB2;
+            --amber: #FFD93D;
+            --amber-dark: #F5C800;
+            --lavender: #C9B8FF;
+            --green: #6BCB77;
+            --text-dark: #2D2D2D;
+            --text-mid: #666;
+            --text-light: #999;
+            --shadow-soft: 0 8px 32px rgba(0,0,0,0.08);
+            --shadow-card: 0 4px 20px rgba(0,0,0,0.10);
+            --radius-lg: 28px;
+            --radius-md: 18px;
+            --radius-sm: 12px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--cream);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* ─── Background blobs ─── */
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        body::before {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(255,107,107,0.12) 0%, transparent 70%);
+            top: -100px; right: -100px;
+        }
+        body::after {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(78,205,196,0.12) 0%, transparent 70%);
+            bottom: -80px; left: -80px;
+        }
+
+        /* ─── Header ─── */
+        .app-header {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 32px 20px 12px;
+        }
+
+        .logo {
+            font-family: 'Fredoka One', cursive;
+            font-size: 52px;
+            color: var(--coral);
+            letter-spacing: 2px;
+            line-height: 1;
+            text-shadow: 4px 4px 0px rgba(255,107,107,0.2);
+        }
+
+        .logo span {
+            color: var(--teal);
+        }
+
+        .tagline {
+            font-size: 14px;
+            color: var(--text-light);
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        /* ─── Screen transitions ─── */
+        .screen {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 560px;
+            padding: 0 20px 40px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeSlideUp 0.4s ease;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── Card ─── */
+        .card {
+            background: var(--warm-white);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-card);
+            width: 100%;
+        }
+
+        /* ─── Menu screen ─── */
+        .menu-hero {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .menu-icon {
+            font-size: 80px;
+            line-height: 1;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .menu-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 28px;
+            color: var(--text-dark);
+            margin-top: 12px;
+        }
+
+        .menu-sub {
+            color: var(--text-mid);
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* ─── Level selector ─── */
+        .level-label {
+            font-weight: 800;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-mid);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .level-btn {
+            border: 2.5px solid transparent;
+            border-radius: var(--radius-md);
+            padding: 16px 8px;
+            cursor: pointer;
+            font-family: 'Nunito', sans-serif;
+            font-size: 14px;
+            font-weight: 800;
+            transition: all 0.2s ease;
+            text-align: center;
+            background: #f3f3f3;
+            color: var(--text-mid);
+        }
+
+        .level-btn .level-icon { font-size: 28px; display: block; margin-bottom: 6px; }
+
+        .level-btn.selected-easy { background: #FFF0D4; border-color: var(--amber-dark); color: #C47800; }
+        .level-btn.selected-medium { background: #FFE8E8; border-color: var(--coral); color: var(--coral-dark); }
+        .level-btn.selected-hard { background: #E8F7F6; border-color: var(--teal-dark); color: var(--teal-dark); }
+
+        .level-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.10); }
+
+        /* ─── Start button ─── */
+        .btn-primary {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: var(--radius-md);
+            background: var(--coral);
+            color: white;
+            font-family: 'Fredoka One', cursive;
+            font-size: 22px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 6px 0 var(--coral-dark);
+            position: relative;
+            top: 0;
+        }
+
+        .btn-primary:hover { top: 2px; box-shadow: 0 4px 0 var(--coral-dark); }
+        .btn-primary:active { top: 6px; box-shadow: 0 0px 0 var(--coral-dark); }
+
+        .btn-secondary {
+            padding: 14px 28px;
+            border: 2.5px solid currentColor;
+            border-radius: var(--radius-sm);
+            background: transparent;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-secondary:hover { background: rgba(0,0,0,0.05); }
+
+        /* ─── Game screen ─── */
+
+        /* Status bar */
+        .status-bar {
+            width: 100%;
+            background: var(--warm-white);
+            border-radius: var(--radius-md);
+            padding: 16px 20px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-icon { font-size: 24px; }
+
+        .status-text {
+            font-weight: 800;
+            font-size: 16px;
+            color: var(--text-dark);
+            flex: 1;
+        }
+
+        .step-counter {
+            font-family: 'Fredoka One', cursive;
+            font-size: 18px;
+            color: var(--teal);
+            background: rgba(78,205,196,0.12);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        /* Path display */
+        .path-display {
+            width: 100%;
+            background: var(--warm-white);
+            border-radius: var(--radius-md);
+            padding: 14px 20px;
+            box-shadow: var(--shadow-soft);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            min-height: 52px;
+        }
+
+        .path-chip {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .path-chip.pending {
+            background: #EBEBEB;
+            color: #aaa;
+        }
+
+        .path-chip.current {
+            background: var(--amber);
+            color: #8A6700;
+            transform: scale(1.1);
+            box-shadow: 0 2px 8px rgba(255,217,61,0.5);
+        }
+
+        .path-chip.done {
+            background: var(--green);
+            color: white;
+        }
+
+        .path-chip.hidden-chip {
+            background: #E8E4DF;
+            color: #BBB;
+            font-size: 15px;
+            letter-spacing: 1px;
+        }
+
+        /* Grid */
+        .grid-wrapper {
+            width: 100%;
+            background: var(--warm-white);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 16px;
+        }
+
+        #gameCanvas {
+            display: block;
+            margin: 0 auto;
+            border-radius: var(--radius-sm);
+        }
+
+        /* Mic section */
+        .mic-section {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .mic-btn {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            border: none;
+            background: var(--coral);
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 var(--coral-dark);
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+            position: relative;
+            top: 0;
+        }
+
+        .mic-btn:hover { top: 2px; box-shadow: 0 4px 0 var(--coral-dark); }
+        .mic-btn:active { top: 6px; box-shadow: 0 0 0 var(--coral-dark); }
+
+        .mic-btn.recording {
+            background: #EE3333;
+            animation: pulse-ring 1s ease infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(238,51,51,0.5), 0 6px 0 #BB2222; }
+            70% { box-shadow: 0 0 0 14px rgba(238,51,51,0), 0 6px 0 #BB2222; }
+            100% { box-shadow: 0 0 0 0 rgba(238,51,51,0), 0 6px 0 #BB2222; }
+        }
+
+        .wave-wrapper {
+            flex: 1;
+            background: #f0f0f0;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            height: 60px;
+        }
+
+        #waveCanvas {
+            display: block;
+        }
+
+        .mic-hint {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-light);
+            text-align: center;
+            margin-top: 8px;
+            width: 100%;
+        }
+
+        /* ─── Result overlay ─── */
+        #resultScreen {
+            position: fixed;
+            inset: 0;
+            background: rgba(45, 45, 45, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        #resultScreen.show {
+            display: flex;
+            animation: fadeSlideUp 0.4s ease;
+        }
+
+        .result-card {
+            background: var(--warm-white);
+            border-radius: var(--radius-lg);
+            padding: 48px 40px;
+            text-align: center;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.25);
+            max-width: 340px;
+            width: 90%;
+        }
+
+        .result-emoji {
+            font-size: 80px;
+            display: block;
+            margin-bottom: 16px;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .result-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: 38px;
+            margin-bottom: 8px;
+        }
+
+        .result-title.win { color: var(--green); }
+        .result-title.lose { color: var(--coral); }
+
+        .result-sub {
+            color: var(--text-mid);
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 28px;
+        }
+
+        .result-btns {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .result-btns .btn-primary { font-size: 18px; padding: 14px; }
+
+        .btn-ghost {
+            padding: 12px;
+            border: none;
+            background: none;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-mid);
+            cursor: pointer;
+        }
+        .btn-ghost:hover { color: var(--text-dark); }
+
+        /* ─── Tile flash animations ─── */
+        @keyframes correctFlash {
+            0% { background: var(--green); }
+            100% { background: #999; }
+        }
+
+        @keyframes wrongFlash {
+            0% { background: var(--coral); }
+            100% { background: #999; }
+        }
+
+        /* ─── Countdown ─── */
+        .countdown-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255,255,255,0.8);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fredoka One', cursive;
+            font-size: 72px;
+            color: var(--coral);
+            z-index: 10;
+            animation: countPulse 0.4s ease;
+            pointer-events: none;
+        }
+
+        @keyframes countPulse {
+            from { transform: scale(1.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="app-header">
+    <div class="logo">di<span>mo</span>ry</div>
+    <p class="tagline">Memory · Movement · Magic</p>
+</header>
+
+<!-- ═══ MENU SCREEN ═══ -->
+<div id="menuScreen" class="screen active">
+    <div class="card">
+        <div class="menu-hero">
+            <span class="menu-icon">🧠</span>
+            <h2 class="menu-title">Train Your Memory</h2>
+            <p class="menu-sub">Say the direction — find the path!</p>
+        </div>
+
+        <span class="level-label">Choose your level</span>
+        <div class="level-grid">
+            <button class="level-btn selected-easy" data-level="easy" onclick="selectLevel(this)">
+                <span class="level-icon">🌱</span>
+                Easy
+            </button>
+            <button class="level-btn" data-level="medium" onclick="selectLevel(this)">
+                <span class="level-icon">🔥</span>
+                Medium
+            </button>
+            <button class="level-btn" data-level="hard" onclick="selectLevel(this)">
+                <span class="level-icon">⚡</span>
+                Hard
+            </button>
+        </div>
+
+        <button class="btn-primary" onclick="startGame()">Let's Play!</button>
+    </div>
+</div>
+
+<!-- ═══ GAME SCREEN ═══ -->
+<div id="gameScreen" class="screen">
+
+    <!-- Status bar -->
+    <div class="status-bar">
+        <span class="status-icon" id="statusIcon">👀</span>
+        <span class="status-text" id="statusText">Get ready...</span>
+        <span class="step-counter" id="stepCounter">0/0</span>
+    </div>
+
+    <!-- Path chips -->
+    <div class="path-display" id="pathDisplay"></div>
+
+    <!-- Grid -->
+    <div class="grid-wrapper">
+        <canvas id="gameCanvas" width="460" height="460"></canvas>
+    </div>
+
+    <!-- Mic section -->
+    <div class="mic-section">
+        <button class="mic-btn" id="micBtn" onclick="record()" title="Speak a direction">🎤</button>
+        <div class="wave-wrapper">
+            <canvas id="waveCanvas" width="300" height="60"></canvas>
+        </div>
+    </div>
+    <p class="mic-hint" id="micHint">Tap the mic and say a direction</p>
+
+</div>
+
+<!-- ═══ RESULT SCREEN ═══ -->
+<div id="resultScreen">
+    <div class="result-card">
+        <span class="result-emoji" id="resultEmoji">🎉</span>
+        <h2 class="result-title" id="resultTitle">You Win!</h2>
+        <p class="result-sub" id="resultSub">Amazing memory!</p>
+        <div class="result-btns">
+            <button class="btn-primary" onclick="goToMenu()">Play Again</button>
+            <button class="btn-ghost" onclick="quit()">Maybe Later</button>
+        </div>
+    </div>
+</div>
+
+<script src="/static/script.js"></script>
+
+</body>
+</html>
